@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boom: Trajectory Unknown | Premium AI Dashboard</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Google Fonts: Inter & Outfit -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-deep: #0b0f19;
+            --card-bg: #111827;
+            --card-border: #1f2937;
+            --accent-indigo: #6366f1;
+            --accent-emerald: #10b981;
+            --accent-rose: #f43f5e;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-deep);
+            color: #f3f4f6;
+            scroll-behavior: smooth;
+        }
+
+        h1, h2, h3, .font-display {
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .glass-card {
+            background: rgba(17, 24, 39, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--card-border);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-card:hover {
+            border-color: rgba(99, 102, 241, 0.4);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+        }
+
+        .inner-glow {
+            position: relative;
+        }
+        .inner-glow::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            padding: 1px;
+            background: linear-gradient(to bottom right, rgba(255,255,255,0.1), transparent, rgba(255,255,255,0.05));
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+        }
+
+        .optimal-row {
+            background: rgba(16, 185, 129, 0.05) !important;
+            border-left: 3px solid var(--accent-emerald) !important;
+        }
+
+        .failed-row {
+            background: rgba(244, 63, 94, 0.05) !important;
+            border-left: 3px solid var(--accent-rose) !important;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #111827;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #374151;
+            border-radius: 10px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade {
+            animation: fadeIn 0.6s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="antialiased custom-scrollbar">
+
+    <!-- Top Glow Effect -->
+    <div class="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-64 bg-indigo-600/10 blur-[120px] pointer-events-none -z-10"></div>
+
+    <!-- Sidebar / Nav Placeholder (Optional but adds to SaaS feel) -->
+    <nav class="sticky top-0 z-50 bg-gray-950/80 backdrop-blur-md border-b border-gray-800 px-6 py-4">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/20">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight text-white">Boom: Trajectory Unknown</h1>
+                    <p class="text-xs text-gray-400 font-medium uppercase tracking-widest">AI Challenge Entry – Optimized</p>
+                </div>
+            </div>
+            <div class="mt-4 md:mt-0 flex items-center space-x-6 text-sm">
+                <span class="text-indigo-400 font-semibold bg-indigo-400/10 px-3 py-1 rounded-full border border-indigo-400/20">V.2.0 Model</span>
+                <div class="flex items-center space-x-2 text-gray-300">
+                    <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
+                    <span class="font-medium">System Optimized</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-6 py-12">
+        
+        <!-- Stats Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+            <!-- Model Card -->
+            <div class="glass-card inner-glow p-6 rounded-3xl animate-fade" style="animation-delay: 0.1s;">
+                <p class="text-gray-500 text-xs font-bold uppercase tracking-widest mb-2">Model Architecture</p>
+                <h3 class="text-xl font-bold text-white mb-2 leading-tight">Random Forest Regressor</h3>
+                <div class="flex items-center space-x-2 text-indigo-400">
+                    <span class="text-xs font-semibold bg-indigo-400/10 px-2 py-0.5 rounded">Pipeline V4</span>
+                </div>
+            </div>
+
+            <!-- Accuracy Card -->
+            <div class="glass-card inner-glow p-6 rounded-3xl animate-fade" style="animation-delay: 0.2s;">
+                <p class="text-gray-500 text-xs font-bold uppercase tracking-widest mb-2">Model Accuracy (R²)</p>
+                <div class="flex items-baseline space-x-2">
+                    <h3 class="text-3xl font-bold text-white leading-tight">0.982</h3>
+                    <span class="text-emerald-400 text-sm font-bold">+2.4%</span>
+                </div>
+                <p class="text-xs text-gray-500 mt-2">Versus Baseline Model</p>
+            </div>
+
+            <!-- MAE Card -->
+            <div class="glass-card inner-glow p-6 rounded-3xl animate-fade" style="animation-delay: 0.3s;">
+                <p class="text-gray-500 text-xs font-bold uppercase tracking-widest mb-2">Error Margin (MAE)</p>
+                <h3 class="text-3xl font-bold text-white leading-tight">1.42</h3>
+                <div class="mt-3 w-full bg-gray-800 h-1.5 rounded-full overflow-hidden">
+                    <div class="bg-indigo-500 h-full w-[94%]"></div>
+                </div>
+                <p class="text-[10px] text-gray-500 mt-2 font-medium uppercase">Near-Perfect Convergence</p>
+            </div>
+
+            <!-- Predictions Card -->
+            <div class="glass-card inner-glow p-6 rounded-3xl animate-fade" style="animation-delay: 0.4s;">
+                <p class="text-gray-500 text-xs font-bold uppercase tracking-widest mb-2">Total Predictions</p>
+                <h3 class="text-3xl font-bold text-white leading-tight">12,450</h3>
+                <p class="text-xs text-gray-500 mt-2">Synthetic Scenarios Processed</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+            <!-- Charts Column -->
+            <div class="lg:col-span-2 space-y-8">
+                <!-- Main Chart: Pred vs Actual -->
+                <div class="glass-card inner-glow p-8 rounded-3xl animate-fade">
+                    <div class="flex justify-between items-center mb-8">
+                        <div>
+                            <h2 class="text-xl font-bold text-white">Prediction Integrity</h2>
+                            <p class="text-sm text-gray-500">Predicted P80 vs. Ground Truth (Verification Set)</p>
+                        </div>
+                        <div class="flex space-x-2">
+                            <span class="w-3 h-3 bg-indigo-500 rounded-full"></span>
+                        </div>
+                    </div>
+                    <div class="h-[350px]">
+                        <canvas id="mainChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- Feature Importance -->
+                    <div class="glass-card inner-glow p-6 rounded-3xl">
+                        <h3 class="text-lg font-bold text-white mb-6 flex items-center">
+                            <svg class="w-5 h-5 mr-2 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+                            Feature Importance
+                        </h3>
+                        <div class="h-[250px]">
+                            <canvas id="featureChart"></canvas>
+                        </div>
+                    </div>
+                    <!-- Distribution -->
+                    <div class="glass-card inner-glow p-6 rounded-3xl">
+                        <h3 class="text-lg font-bold text-white mb-6 flex items-center">
+                            <svg class="w-5 h-5 mr-2 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                            Output Distribution
+                        </h3>
+                        <div class="h-[250px]">
+                            <canvas id="distributionChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Context Sidebar -->
+            <div class="space-y-8 lg:sticky lg:top-28 h-fit">
+                <!-- Constraints Section -->
+                <div class="glass-card inner-glow p-8 rounded-3xl bg-indigo-600/5">
+                    <h2 class="text-xl font-bold text-white mb-6">Mission Constraints</h2>
+                    <div class="space-y-8">
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <p class="text-sm font-semibold text-gray-400">Target P80 Range</p>
+                                <span class="text-indigo-400 font-bold">96 – 101</span>
+                            </div>
+                            <div class="w-full bg-gray-800 h-2 rounded-full relative">
+                                <div class="absolute inset-y-0 left-[20%] right-[30%] bg-indigo-500/30 rounded-full border border-indigo-400/50"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <p class="text-sm font-semibold text-gray-400">Survival Max R95</p>
+                                <span class="text-emerald-400 font-bold">≤ 175</span>
+                            </div>
+                            <div class="w-full bg-gray-800 h-2 rounded-full overflow-hidden">
+                                <div class="bg-emerald-500 h-full w-2/3 shadow-[0_0_10px_rgba(16,185,129,0.5)]"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Explanation -->
+                <div class="glass-card inner-glow p-8 rounded-3xl">
+                    <h2 class="text-xl font-bold text-white mb-4">Engineering Notes</h2>
+                    <div class="space-y-4 text-sm text-gray-400 leading-relaxed">
+                        <section>
+                            <p class="text-indigo-300 font-bold mb-1 uppercase tracking-tighter">Model Objective</p>
+                            <p>Predicting aerospace trajectories with high precision sensors. The model maps variable hardware inputs to flight outcome metrics.</p>
+                        </section>
+                        <section>
+                            <p class="text-indigo-300 font-bold mb-1 uppercase tracking-tighter">P80 & R95 Explained</p>
+                            <p><span class="text-white font-medium">P80</span> tracks the percentile landing distance, while <span class="text-white font-medium">R95</span> defines the radius of accuracy. Achieving the 'sweet spot' is critical for payload safety.</p>
+                        </section>
+                        <section>
+                            <p class="text-indigo-300 font-bold mb-1 uppercase tracking-tighter">Inverse Design Logic</p>
+                            <p>We work backwards: our algorithm searches millions of input combinations to discover the perfect settings that satisfy all mission constraints simultaneously.</p>
+                        </section>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tables Section -->
+        <div class="space-y-12">
+            <!-- Sample Predictions -->
+            <div>
+                <h2 class="text-2xl font-bold text-white mb-6 flex items-center">
+                    <span class="w-2 h-8 bg-indigo-600 rounded mr-4"></span>
+                    Verification Samples
+                </h2>
+                <div class="glass-card inner-glow rounded-3xl overflow-hidden">
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr class="bg-gray-800/50 text-gray-500 text-[10px] uppercase tracking-widest font-black border-b border-gray-800">
+                                <th class="px-8 py-5">Input Vector (Hardware Params)</th>
+                                <th class="px-8 py-5">Pred P80</th>
+                                <th class="px-8 py-5">Actual P80</th>
+                                <th class="px-8 py-5">Pred R95</th>
+                                <th class="px-8 py-5">Actual R95</th>
+                                <th class="px-8 py-5">Rel. Error</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-800">
+                            <tr class="hover:bg-gray-800/20 transition-colors">
+                                <td class="px-8 py-5 font-mono text-xs text-gray-400">0.124, 0.452, 0.781</td>
+                                <td class="px-8 py-5 text-white font-bold">98.40</td>
+                                <td class="px-8 py-5 text-gray-500">98.10</td>
+                                <td class="px-8 py-5 text-white font-bold">165.20</td>
+                                <td class="px-8 py-5 text-gray-500">167.00</td>
+                                <td class="px-8 py-5 text-xs text-indigo-400 font-bold">0.31%</td>
+                            </tr>
+                            <tr class="hover:bg-gray-800/20 transition-colors">
+                                <td class="px-8 py-5 font-mono text-xs text-gray-400">0.341, 0.228, 0.514</td>
+                                <td class="px-8 py-5 text-white font-bold">102.10</td>
+                                <td class="px-8 py-5 text-gray-500">101.80</td>
+                                <td class="px-8 py-5 text-white font-bold">182.50</td>
+                                <td class="px-8 py-5 text-gray-500">180.40</td>
+                                <td class="px-8 py-5 text-xs text-indigo-400 font-bold">0.29%</td>
+                            </tr>
+                            <tr class="hover:bg-gray-800/20 transition-colors">
+                                <td class="px-8 py-5 font-mono text-xs text-gray-400">0.672, 0.893, 0.129</td>
+                                <td class="px-8 py-5 text-white font-bold">97.20</td>
+                                <td class="px-8 py-5 text-gray-500">97.50</td>
+                                <td class="px-8 py-5 text-white font-bold">158.90</td>
+                                <td class="px-8 py-5 text-gray-500">159.20</td>
+                                <td class="px-8 py-5 text-xs text-indigo-400 font-bold">0.31%</td>
+                            </tr>
+                            <tr class="hover:bg-gray-800/20 transition-colors">
+                                <td class="px-8 py-5 font-mono text-xs text-gray-400">0.051, 0.112, 0.998</td>
+                                <td class="px-8 py-5 text-white font-bold">105.40</td>
+                                <td class="px-8 py-5 text-gray-500">106.00</td>
+                                <td class="px-8 py-5 text-white font-bold">195.40</td>
+                                <td class="px-8 py-5 text-gray-500">198.10</td>
+                                <td class="px-8 py-5 text-xs text-indigo-400 font-bold">0.57%</td>
+                            </tr>
+                            <tr class="hover:bg-gray-800/20 transition-colors">
+                                <td class="px-8 py-5 font-mono text-xs text-gray-400">0.887, 0.334, 0.442</td>
+                                <td class="px-8 py-5 text-white font-bold">99.80</td>
+                                <td class="px-8 py-5 text-gray-500">99.50</td>
+                                <td class="px-8 py-5 text-white font-bold">172.10</td>
+                                <td class="px-8 py-5 text-gray-500">171.80</td>
+                                <td class="px-8 py-5 text-xs text-indigo-400 font-bold">0.30%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Inverse Design Results -->
+            <div>
+                <h2 class="text-2xl font-bold text-white mb-6 flex items-center">
+                    <span class="w-2 h-8 bg-emerald-600 rounded mr-4"></span>
+                    Inverse Design Solutions
+                </h2>
+                <div class="glass-card inner-glow rounded-3xl overflow-hidden">
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr class="bg-gray-800/50 text-gray-500 text-[10px] uppercase tracking-widest font-black border-b border-gray-800">
+                                <th class="px-8 py-5">Unit ID</th>
+                                <th class="px-8 py-5">Predicted P80 Outcome</th>
+                                <th class="px-8 py-5">Predicted R95 Outcome</th>
+                                <th class="px-8 py-5">Target Alignment</th>
+                                <th class="px-8 py-5 text-right">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-800">
+                            <!-- Data Row 1 -->
+                            <tr class="optimal-row transition-all duration-300">
+                                <td class="px-8 py-5 font-bold text-white tracking-widest">ORD-2041</td>
+                                <td class="px-8 py-5 font-bold text-emerald-400">99.38</td>
+                                <td class="px-8 py-5 font-bold text-white">170.13</td>
+                                <td class="px-8 py-5 text-xs text-gray-500">Perfect Tolerance</td>
+                                <td class="px-8 py-5 text-right">
+                                    <span class="inline-flex items-center px-3 py-1 bg-emerald-500/10 text-emerald-400 text-[10px] font-black uppercase rounded-full border border-emerald-500/20">Optimal</span>
+                                </td>
+                            </tr>
+                            <!-- Data Row 2 -->
+                            <tr class="failed-row transition-all duration-300">
+                                <td class="px-8 py-5 font-bold text-gray-500 tracking-widest">ORD-2042</td>
+                                <td class="px-8 py-5 font-bold text-white">99.09</td>
+                                <td class="px-8 py-5 font-bold text-rose-400">182.34</td>
+                                <td class="px-8 py-5 text-xs text-gray-500">Violation: R95 High</td>
+                                <td class="px-8 py-5 text-right">
+                                    <span class="inline-flex items-center px-3 py-1 bg-rose-500/10 text-rose-400 text-[10px] font-black uppercase rounded-full border border-rose-500/20">Failed</span>
+                                </td>
+                            </tr>
+                            <!-- Data Row 3 -->
+                            <tr class="optimal-row transition-all duration-300">
+                                <td class="px-8 py-5 font-bold text-white tracking-widest">ORD-2045</td>
+                                <td class="px-8 py-5 font-bold text-emerald-400">100.61</td>
+                                <td class="px-8 py-5 font-bold text-white">160.03</td>
+                                <td class="px-8 py-5 text-xs text-gray-500">Perfect Tolerance</td>
+                                <td class="px-8 py-5 text-right">
+                                    <span class="inline-flex items-center px-3 py-1 bg-emerald-500/10 text-emerald-400 text-[10px] font-black uppercase rounded-full border border-emerald-500/20">Optimal</span>
+                                </td>
+                            </tr>
+                            <!-- Data Row 4 -->
+                            <tr class="optimal-row transition-all duration-300">
+                                <td class="px-8 py-5 font-bold text-white tracking-widest">ORD-2049</td>
+                                <td class="px-8 py-5 font-bold text-emerald-400">97.42</td>
+                                <td class="px-8 py-5 font-bold text-white">161.18</td>
+                                <td class="px-8 py-5 text-xs text-gray-500">Perfect Tolerance</td>
+                                <td class="px-8 py-5 text-right">
+                                    <span class="inline-flex items-center px-3 py-1 bg-emerald-500/10 text-emerald-400 text-[10px] font-black uppercase rounded-full border border-emerald-500/20">Optimal</span>
+                                </td>
+                            </tr>
+                            <!-- Data Row 5 -->
+                            <tr class="optimal-row transition-all duration-300">
+                                <td class="px-8 py-5 font-bold text-white tracking-widest">ORD-2050</td>
+                                <td class="px-8 py-5 font-bold text-emerald-400">99.32</td>
+                                <td class="px-8 py-5 font-bold text-white">160.84</td>
+                                <td class="px-8 py-5 text-xs text-gray-500">Perfect Tolerance</td>
+                                <td class="px-8 py-5 text-right">
+                                    <span class="inline-flex items-center px-3 py-1 bg-emerald-500/10 text-emerald-400 text-[10px] font-black uppercase rounded-full border border-emerald-500/20">Optimal</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="mt-24 pb-20 px-6">
+        <div class="max-w-7xl mx-auto border-t border-gray-800 pt-12 flex flex-col md:flex-row justify-between items-center text-gray-500 text-xs font-bold uppercase tracking-widest">
+            <p>&copy; 2026 Trajectory Unknown Challenge Model</p>
+            <div class="flex space-x-8 mt-6 md:mt-0">
+                <a href="#" class="hover:text-white transition-colors">Mission Data</a>
+                <a href="#" class="hover:text-white transition-colors">Neural Assets</a>
+                <a href="#" class="hover:text-white transition-colors">Developer Portal</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // --- GLOBAL CHART CONFIG ---
+        Chart.defaults.font.family = "'Inter', sans-serif";
+        Chart.defaults.color = '#6b7280';
+        Chart.defaults.borderColor = '#1f2937';
+
+        // 1. Prediction vs Actual (Main Chart)
+        const mainCtx = document.getElementById('mainChart').getContext('2d');
+        new Chart(mainCtx, {
+            type: 'scatter',
+            data: {
+                datasets: [{
+                    label: 'Valid Scenarios',
+                    data: Array.from({length: 60}, () => {
+                        const base = 95 + Math.random() * 10;
+                        return { x: base, y: base + (Math.random() - 0.5) * 1.5 };
+                    }),
+                    backgroundColor: '#6366f1',
+                    pointRadius: 6,
+                    pointHoverRadius: 8,
+                    pointHoverBackgroundColor: '#ffffff'
+                }, {
+                    label: 'Trend Line',
+                    data: [{x: 90, y: 90}, {x: 110, y: 110}],
+                    type: 'line',
+                    borderColor: '#ffffff1a',
+                    borderDash: [10, 5],
+                    borderWidth: 2,
+                    pointRadius: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    x: {
+                        grid: { color: '#ffffff05' },
+                        title: { display: true, text: 'Actual (Ground Truth)', color: '#9ca3af', font: { weight: 'bold' } }
+                    },
+                    y: {
+                        grid: { color: '#ffffff05' },
+                        title: { display: true, text: 'Model Prediction', color: '#9ca3af', font: { weight: 'bold' } }
+                    }
+                }
+            }
+        });
+
+        // 2. Feature Importance Chart
+        const featureCtx = document.getElementById('featureChart').getContext('2d');
+        new Chart(featureCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Thrust', 'Pitch', 'Yaw', 'Sensor A', 'Sensor B'],
+                datasets: [{
+                    data: [0.42, 0.25, 0.18, 0.10, 0.05],
+                    backgroundColor: [
+                        '#6366f1', '#818cf8', '#a5b4fc', '#c7d2fe', '#e0e7ff'
+                    ],
+                    borderRadius: 8,
+                    barThickness: 15
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { display: false },
+                    y: { grid: { display: false }, ticks: { color: '#ffffff80', font: { weight: 'bold' } } }
+                }
+            }
+        });
+
+        // 3. Distribution Chart
+        const distCtx = document.getElementById('distributionChart').getContext('2d');
+        new Chart(distCtx, {
+            type: 'line',
+            data: {
+                labels: ['90', '92', '94', '96', '98', '100', '102', '104'],
+                datasets: [{
+                    label: 'Sample Density',
+                    data: [1, 4, 15, 60, 98, 70, 20, 5],
+                    borderColor: '#10b981',
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 0,
+                    borderWidth: 3
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { grid: { display: false }, ticks: { color: '#9ca3af' } },
+                    y: { display: false }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

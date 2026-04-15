@@ -1,0 +1,643 @@
+
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Asteroid Challenge Dashboard</title>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <style>
+            :root {
+                --primary: #6366f1;
+                --secondary: #a855f7;
+                --bg: #0f172a;
+                --card: rgba(30, 41, 59, 0.7);
+            }
+            body {
+                background-color: var(--bg);
+                color: white;
+                font-family: 'Inter', system-ui, -apple-system, sans-serif;
+                margin: 0;
+                padding: 40px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+            .container {
+                max-width: 1100px;
+                width: 100%;
+            }
+            h1 {
+                font-size: 2.5rem;
+                margin-bottom: 10px;
+                background: linear-gradient(to right, var(--primary), var(--secondary));
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+            }
+            .status {
+                color: #94a3b8;
+                margin-bottom: 40px;
+            }
+            .grid {
+                display: grid;
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+            .card {
+                background: var(--card);
+                border: 1px solid rgba(255,255,255,0.1);
+                backdrop-filter: blur(10px);
+                border-radius: 20px;
+                padding: 30px;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            }
+            .data-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 20px;
+                font-size: 0.9rem;
+            }
+            .data-table th {
+                text-align: left;
+                padding: 12px;
+                border-bottom: 1px solid rgba(255,255,255,0.2);
+                color: var(--primary);
+            }
+            .data-table td {
+                padding: 12px;
+                border-bottom: 1px solid rgba(255,255,255,0.05);
+            }
+            .data-table tr:hover {
+                background: rgba(255,255,255,0.02);
+            }
+        </script>
+    </head>
+    <body>
+        <div class="container">
+            <h1>☄️ Boom: Trajectory Unknown</h1>
+            <p class="status">AI Generated Scenarios for Optimized Debris patterns</p>
+            
+            <div class="grid">
+                <div class="card">
+                    <h2>Impact Energy vs Debris Radius (P80/R95)</h2>
+                    <canvas id="resultChart"></canvas>
+                </div>
+
+                <div class="card">
+                    <h2>Top 20 Valid Scenarios</h2>
+                    <div style="overflow-x: auto;">
+                        <table border="1" class="dataframe data-table">
+  <thead>
+    <tr style="text-align: right;">
+      <th>Absolute Magnitude</th>
+      <th>Est Dia in KM(min)</th>
+      <th>Relative Velocity km per sec</th>
+      <th>Miss Dist.(kilometers)</th>
+      <th>Orbit Uncertainity</th>
+      <th>Minimum Orbit Intersection</th>
+      <th>Jupiter Tisserand Invariant</th>
+      <th>Epoch Osculation</th>
+      <th>Eccentricity</th>
+      <th>Semi Major Axis</th>
+      <th>Inclination</th>
+      <th>Asc Node Longitude</th>
+      <th>Orbital Period</th>
+      <th>Perihelion Distance</th>
+      <th>Perihelion Arg</th>
+      <th>Aphelion Dist</th>
+      <th>Perihelion Time</th>
+      <th>Mean Anomaly</th>
+      <th>Mean Motion</th>
+      <th>Hazard_Risk</th>
+      <th>P80</th>
+      <th>R95</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>19.235065</td>
+      <td>0.426868</td>
+      <td>39.942620</td>
+      <td>3.783366e+07</td>
+      <td>0</td>
+      <td>0.286110</td>
+      <td>5.066254</td>
+      <td>2.457725e+06</td>
+      <td>0.379906</td>
+      <td>1.395133</td>
+      <td>13.370659</td>
+      <td>173.199272</td>
+      <td>631.522852</td>
+      <td>0.814596</td>
+      <td>184.645796</td>
+      <td>1.97567</td>
+      <td>2.457728e+06</td>
+      <td>182.081717</td>
+      <td>0.740866</td>
+      <td>False</td>
+      <td>98.384059</td>
+      <td>122.572020</td>
+    </tr>
+    <tr>
+      <td>24.329936</td>
+      <td>0.669909</td>
+      <td>33.320239</td>
+      <td>9.872132e+06</td>
+      <td>8</td>
+      <td>0.333739</td>
+      <td>5.066254</td>
+      <td>2.457725e+06</td>
+      <td>0.379906</td>
+      <td>1.395133</td>
+      <td>13.370659</td>
+      <td>173.199272</td>
+      <td>631.522852</td>
+      <td>0.814596</td>
+      <td>184.645796</td>
+      <td>1.97567</td>
+      <td>2.457728e+06</td>
+      <td>182.081717</td>
+      <td>0.740866</td>
+      <td>False</td>
+      <td>98.640230</td>
+      <td>133.631397</td>
+    </tr>
+    <tr>
+      <td>24.880456</td>
+      <td>0.148011</td>
+      <td>32.386089</td>
+      <td>3.286837e+07</td>
+      <td>4</td>
+      <td>0.342108</td>
+      <td>5.066254</td>
+      <td>2.457725e+06</td>
+      <td>0.379906</td>
+      <td>1.395133</td>
+      <td>13.370659</td>
+      <td>173.199272</td>
+      <td>631.522852</td>
+      <td>0.814596</td>
+      <td>184.645796</td>
+      <td>1.97567</td>
+      <td>2.457728e+06</td>
+      <td>182.081717</td>
+      <td>0.740866</td>
+      <td>False</td>
+      <td>98.340045</td>
+      <td>79.573250</td>
+    </tr>
+    <tr>
+      <td>15.242826</td>
+      <td>0.495561</td>
+      <td>44.327848</td>
+      <td>2.945392e+07</td>
+      <td>0</td>
+      <td>0.090586</td>
+      <td>5.066254</td>
+      <td>2.457725e+06</td>
+      <td>0.379906</td>
+      <td>1.395133</td>
+      <td>13.370659</td>
+      <td>173.199272</td>
+      <td>631.522852</td>
+      <td>0.814596</td>
+      <td>184.645796</td>
+      <td>1.97567</td>
+      <td>2.457728e+06</td>
+      <td>182.081717</td>
+      <td>0.740866</td>
+      <td>False</td>
+      <td>96.977425</td>
+      <td>138.211770</td>
+    </tr>
+    <tr>
+      <td>22.367830</td>
+      <td>0.529988</td>
+      <td>36.269031</td>
+      <td>4.997330e+07</td>
+      <td>7</td>
+      <td>0.089967</td>
+      <td>5.066254</td>
+      <td>2.457725e+06</td>
+      <td>0.379906</td>
+      <td>1.395133</td>
+      <td>13.370659</td>
+      <td>173.199272</td>
+      <td>631.522852</td>
+      <td>0.814596</td>
+      <td>184.645796</td>
+      <td>1.97567</td>
+      <td>2.457728e+06</td>
+      <td>182.081717</td>
+      <td>0.740866</td>
+      <td>False</td>
+      <td>99.139206</td>
+      <td>125.536873</td>
+    </tr>
+    <tr>
+      <td>24.015533</td>
+      <td>0.997025</td>
+      <td>34.821026</td>
+      <td>7.272308e+06</td>
+      <td>3</td>
+      <td>0.288946</td>
+      <td>5.066254</td>
+      <td>2.457725e+06</td>
+      <td>0.379906</td>
+      <td>1.395133</td>
+      <td>13.370659</td>
+      <td>173.199272</td>
+      <td>631.522852</td>
+      <td>0.814596</td>
+      <td>184.645796</td>
+      <td>1.97567</td>
+      <td>2.457728e+06</td>
+      <td>182.081717</td>
+      <td>0.740866</td>
+      <td>False</td>
+      <td>100.262606</td>
+      <td>169.344593</td>
+    </tr>
+    <tr>
+      <td>15.377383</td>
+      <td>0.486958</td>
+      <td>43.504195</td>
+      <td>2.637032e+07</td>
+      <td>8</td>
+      <td>0.127236</td>
+      <td>5.066254</td>
+      <td>2.457725e+06</td>
+      <td>0.379906</td>
+      <td>1.395133</td>
+      <td>13.370659</td>
+      <td>173.199272</td>
+      <td>631.522852</td>
+      <td>0.814596</td>
+      <td>184.645796</td>
+      <td>1.97567</td>
+      <td>2.457728e+06</td>
+      <td>182.081717</td>
+      <td>0.740866</td>
+      <td>False</td>
+      <td>96.011058</td>
+      <td>135.704211</td>
+    </tr>
+    <tr>
+      <td>23.132181</td>
+      <td>0.264452</td>
+      <td>34.756168</td>
+      <td>1.558939e+07</td>
+      <td>8</td>
+      <td>0.077580</td>
+      <td>5.066254</td>
+      <td>2.457725e+06</td>
+      <td>0.379906</td>
+      <td>1.395133</td>
+      <td>13.370659</td>
+      <td>173.199272</td>
+      <td>631.522852</td>
+      <td>0.814596</td>
+      <td>184.645796</td>
+      <td>1.97567</td>
+      <td>2.457728e+06</td>
+      <td>182.081717</td>
+      <td>0.740866</td>
+      <td>False</td>
+      <td>98.398614</td>
+      <td>95.957549</td>
+    </tr>
+    <tr>
+      <td>21.074185</td>
+      <td>0.588316</td>
+      <td>38.717611</td>
+      <td>1.108949e+07</td>
+      <td>6</td>
+      <td>0.187533</td>
+      <td>5.066254</td>
+      <td>2.457725e+06</td>
+      <td>0.379906</td>
+      <td>1.395133</td>
+      <td>13.370659</td>
+      <td>173.199272</td>
+      <td>631.522852</td>
+      <td>0.814596</td>
+      <td>184.645796</td>
+      <td>1.97567</td>
+      <td>2.457728e+06</td>
+      <td>182.081717</td>
+      <td>0.740866</td>
+      <td>False</td>
+      <td>100.224786</td>
+      <td>136.266775</td>
+    </tr>
+    <tr>
+      <td>21.558333</td>
+      <td>0.130755</td>
+      <td>38.378564</td>
+      <td>1.817266e+07</td>
+      <td>8</td>
+      <td>0.023436</td>
+      <td>5.066254</td>
+      <td>2.457725e+06</td>
+      <td>0.379906</td>
+      <td>1.395133</td>
+      <td>13.370659</td>
+      <td>173.199272</td>
+      <td>631.522852</td>
+      <td>0.814596</td>
+      <td>184.645796</td>
+      <td>1.97567</td>
+      <td>2.457728e+06</td>
+      <td>182.081717</td>
+      <td>0.740866</td>
+      <td>True</td>
+      <td>100.684513</td>
+      <td>89.832612</td>
+    </tr>
+    <tr>
+      <td>19.691647</td>
+      <td>0.609888</td>
+      <td>41.075743</td>
+      <td>3.263204e+07</td>
+      <td>2</td>
+      <td>0.391931</td>
+      <td>5.066254</td>
+      <td>2.457725e+06</td>
+      <td>0.379906</td>
+      <td>1.395133</td>
+      <td>13.370659</td>
+      <td>173.199272</td>
+      <td>631.522852</td>
+      <td>0.814596</td>
+      <td>184.645796</td>
+      <td>1.97567</td>
+      <td>2.457728e+06</td>
+      <td>182.081717</td>
+      <td>0.740866</td>
+      <td>False</td>
+      <td>100.996908</td>
+      <td>143.140292</td>
+    </tr>
+    <tr>
+      <td>24.076969</td>
+      <td>0.431222</td>
+      <td>33.188135</td>
+      <td>4.144935e+07</td>
+      <td>0</td>
+      <td>0.121184</td>
+      <td>5.066254</td>
+      <td>2.457725e+06</td>
+      <td>0.379906</td>
+      <td>1.395133</td>
+      <td>13.370659</td>
+      <td>173.199272</td>
+      <td>631.522852</td>
+      <td>0.814596</td>
+      <td>184.645796</td>
+      <td>1.97567</td>
+      <td>2.457728e+06</td>
+      <td>182.081717</td>
+      <td>0.740866</td>
+      <td>False</td>
+      <td>97.936140</td>
+      <td>109.498476</td>
+    </tr>
+    <tr>
+      <td>16.238331</td>
+      <td>0.109924</td>
+      <td>42.623451</td>
+      <td>4.428841e+07</td>
+      <td>8</td>
+      <td>0.245578</td>
+      <td>5.066254</td>
+      <td>2.457725e+06</td>
+      <td>0.379906</td>
+      <td>1.395133</td>
+      <td>13.370659</td>
+      <td>173.199272</td>
+      <td>631.522852</td>
+      <td>0.814596</td>
+      <td>184.645796</td>
+      <td>1.97567</td>
+      <td>2.457728e+06</td>
+      <td>182.081717</td>
+      <td>0.740866</td>
+      <td>False</td>
+      <td>96.411837</td>
+      <td>96.239346</td>
+    </tr>
+    <tr>
+      <td>23.900690</td>
+      <td>0.948114</td>
+      <td>33.417771</td>
+      <td>2.767319e+07</td>
+      <td>4</td>
+      <td>0.126530</td>
+      <td>5.066254</td>
+      <td>2.457725e+06</td>
+      <td>0.379906</td>
+      <td>1.395133</td>
+      <td>13.370659</td>
+      <td>173.199272</td>
+      <td>631.522852</td>
+      <td>0.814596</td>
+      <td>184.645796</td>
+      <td>1.97567</td>
+      <td>2.457728e+06</td>
+      <td>182.081717</td>
+      <td>0.740866</td>
+      <td>False</td>
+      <td>97.928037</td>
+      <td>161.646924</td>
+    </tr>
+    <tr>
+      <td>16.770786</td>
+      <td>0.376972</td>
+      <td>44.735639</td>
+      <td>2.914799e+07</td>
+      <td>9</td>
+      <td>0.124436</td>
+      <td>5.066254</td>
+      <td>2.457725e+06</td>
+      <td>0.379906</td>
+      <td>1.395133</td>
+      <td>13.370659</td>
+      <td>173.199272</td>
+      <td>631.522852</td>
+      <td>0.814596</td>
+      <td>184.645796</td>
+      <td>1.97567</td>
+      <td>2.457728e+06</td>
+      <td>182.081717</td>
+      <td>0.740866</td>
+      <td>False</td>
+      <td>100.645031</td>
+      <td>127.168464</td>
+    </tr>
+    <tr>
+      <td>20.771358</td>
+      <td>0.531189</td>
+      <td>39.543572</td>
+      <td>1.682186e+07</td>
+      <td>6</td>
+      <td>0.321835</td>
+      <td>5.066254</td>
+      <td>2.457725e+06</td>
+      <td>0.379906</td>
+      <td>1.395133</td>
+      <td>13.370659</td>
+      <td>173.199272</td>
+      <td>631.522852</td>
+      <td>0.814596</td>
+      <td>184.645796</td>
+      <td>1.97567</td>
+      <td>2.457728e+06</td>
+      <td>182.081717</td>
+      <td>0.740866</td>
+      <td>False</td>
+      <td>100.858073</td>
+      <td>132.206000</td>
+    </tr>
+    <tr>
+      <td>16.579627</td>
+      <td>0.789510</td>
+      <td>43.322763</td>
+      <td>2.335344e+07</td>
+      <td>3</td>
+      <td>0.320302</td>
+      <td>5.066254</td>
+      <td>2.457725e+06</td>
+      <td>0.379906</td>
+      <td>1.395133</td>
+      <td>13.370659</td>
+      <td>173.199272</td>
+      <td>631.522852</td>
+      <td>0.814596</td>
+      <td>184.645796</td>
+      <td>1.97567</td>
+      <td>2.457728e+06</td>
+      <td>182.081717</td>
+      <td>0.740866</td>
+      <td>False</td>
+      <td>98.143398</td>
+      <td>165.596526</td>
+    </tr>
+    <tr>
+      <td>24.719058</td>
+      <td>0.944918</td>
+      <td>33.044635</td>
+      <td>4.006814e+07</td>
+      <td>4</td>
+      <td>0.150536</td>
+      <td>5.066254</td>
+      <td>2.457725e+06</td>
+      <td>0.379906</td>
+      <td>1.395133</td>
+      <td>13.370659</td>
+      <td>173.199272</td>
+      <td>631.522852</td>
+      <td>0.814596</td>
+      <td>184.645796</td>
+      <td>1.97567</td>
+      <td>2.457728e+06</td>
+      <td>182.081717</td>
+      <td>0.740866</td>
+      <td>False</td>
+      <td>99.005068</td>
+      <td>160.581035</td>
+    </tr>
+    <tr>
+      <td>18.631724</td>
+      <td>0.387388</td>
+      <td>42.172446</td>
+      <td>2.236980e+07</td>
+      <td>7</td>
+      <td>0.250409</td>
+      <td>5.066254</td>
+      <td>2.457725e+06</td>
+      <td>0.379906</td>
+      <td>1.395133</td>
+      <td>13.370659</td>
+      <td>173.199272</td>
+      <td>631.522852</td>
+      <td>0.814596</td>
+      <td>184.645796</td>
+      <td>1.97567</td>
+      <td>2.457728e+06</td>
+      <td>182.081717</td>
+      <td>0.740866</td>
+      <td>False</td>
+      <td>100.522117</td>
+      <td>123.083733</td>
+    </tr>
+    <tr>
+      <td>24.907320</td>
+      <td>0.795070</td>
+      <td>33.813067</td>
+      <td>4.272830e+07</td>
+      <td>5</td>
+      <td>0.157240</td>
+      <td>5.066254</td>
+      <td>2.457725e+06</td>
+      <td>0.379906</td>
+      <td>1.395133</td>
+      <td>13.370659</td>
+      <td>173.199272</td>
+      <td>631.522852</td>
+      <td>0.814596</td>
+      <td>184.645796</td>
+      <td>1.97567</td>
+      <td>2.457728e+06</td>
+      <td>182.081717</td>
+      <td>0.740866</td>
+      <td>False</td>
+      <td>100.534240</td>
+      <td>147.133092</td>
+    </tr>
+  </tbody>
+</table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            const ctx = document.getElementById('resultChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ["Scenario 1", "Scenario 2", "Scenario 3", "Scenario 4", "Scenario 5", "Scenario 6", "Scenario 7", "Scenario 8", "Scenario 9", "Scenario 10", "Scenario 11", "Scenario 12", "Scenario 13", "Scenario 14", "Scenario 15", "Scenario 16", "Scenario 17", "Scenario 18", "Scenario 19", "Scenario 20"],
+                    datasets: [
+                        {
+                            label: 'P80 (Interaction Power)',
+                            data: [98.38405948968534, 98.64023032181706, 98.34004529635178, 96.9774253625929, 99.1392062651745, 100.26260589123967, 96.0110575452022, 98.39861409255592, 100.22478647714412, 100.6845134054402, 100.99690767063754, 97.93614025501772, 96.411837442579, 97.92803659818142, 100.6450308846814, 100.85807347542082, 98.14339844699032, 99.00506805377432, 100.52211688662634, 100.5342399823366],
+                            borderColor: '#6366f1',
+                            backgroundColor: 'rgba(99, 102, 241, 0.2)',
+                            tension: 0.4,
+                            fill: true
+                        },
+                        {
+                            label: 'R95 (Dispersal Area)',
+                            data: [122.57202020873927, 133.63139699478887, 79.57325020108145, 138.21177031237062, 125.53687273897673, 169.34459306189132, 135.70421131936627, 95.95754942745276, 136.2667746462873, 89.8326122277699, 143.14029210056418, 109.49847618495292, 96.23934609928683, 161.64692446517714, 127.16846447750038, 132.2060002777415, 165.59652617532888, 160.58103471503867, 123.08373297638, 147.1330919683608],
+                            borderColor: '#a855f7',
+                            backgroundColor: 'rgba(168, 85, 247, 0.2)',
+                            tension: 0.4,
+                            fill: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { labels: { color: 'white' } }
+                    },
+                    scales: {
+                        y: { grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: 'white' } },
+                        x: { grid: { display: false }, ticks: { color: 'white' } }
+                    }
+                }
+            });
+        </script>
+    </body>
+    </html>
+    
