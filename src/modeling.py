@@ -1,37 +1,35 @@
 import pandas as pd
-from sklearn.linear_model import LogisticRegression
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import accuracy_score, classification_report
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.multioutput import MultiOutputRegressor
+from sklearn.metrics import mean_absolute_error, r2_score
 import joblib
 
-def build_and_evaluate(X_train, X_test, y_train, y_test):
+def build_and_evaluate(X_train, X_val, y_train, y_val):
     """
-    Trains two models and chooses the best one for output.
+    Trains a Multi-Output Random Forest Regressor and evaluates performance.
     """
-    print("\n--- MODEL TRAINING ---")
+    print("\n--- MODEL TRAINING (REGRESSION) ---")
 
-    # 1. LOGISTIC REGRESSION (Linear)
-    lr = LogisticRegression(max_iter=1000)
-    lr.fit(X_train, y_train)
-    lr_acc = accuracy_score(y_test, lr.predict(X_test))
-    print(f"Linear (Logistic) Accuracy: {lr_acc:.2%}")
-
-    # 2. RANDOM FOREST (Non-Linear)
-    rf = RandomForestClassifier(n_estimators=200, random_state=42, class_weight='balanced')
-    rf.fit(X_train, y_train)
-    rf_acc = accuracy_score(y_test, rf.predict(X_test))
-    print(f"Random Forest Accuracy:     {rf_acc:.2%}")
-
-    # 3. COMPARE AND SAVE BEST
-    if rf_acc >= lr_acc:
-        print("\nWinner: RANDOM FOREST (Recommended for submission)")
-        best_model = rf
-    else:
-        print("\nWinner: LOGISTIC REGRESSION")
-        best_model = lr
-
-    # Save to disk
-    joblib.dump(best_model, 'results/best_model.joblib')
-    print("Best model saved to results/best_model.joblib")
+    # The buyer's data has multiple targets: P80, R95, etc.
+    # RandomForestRegressor can handle multiple outputs directly.
+    model = RandomForestRegressor(n_estimators=100, random_state=42, n_jobs=-1)
     
-    return best_model
+    print("Fitting model on training data...")
+    model.fit(X_train, y_train)
+
+    # 1. EVALUATE
+    print("\nTraining complete. Evaluating on validation set...")
+    y_pred = model.predict(X_val)
+    
+    # Calculate metrics for each target
+    targets = y_train.columns
+    for i, target in enumerate(targets):
+        mae = mean_absolute_error(y_val.iloc[:, i], y_pred[:, i])
+        r2 = r2_score(y_val.iloc[:, i], y_pred[:, i])
+        print(f"Target [{target}]: MAE = {mae:.4f}, R2 Score = {r2:.4f}")
+
+    # 2. SAVE BEST
+    joblib.dump(model, 'results/best_model.joblib')
+    print("\nBest model saved to results/best_model.joblib")
+    
+    return model

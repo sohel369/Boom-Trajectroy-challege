@@ -1,49 +1,81 @@
 import pandas as pd
 import numpy as np
+import json
+import os
 
 def generate_ideal_scenarios(model, X_train, target_count=20):
     """
-    Reverse-engineers asteroids that meet specific impact criteria.
+    Simulates thousands of scenarios to find inputs that satisfy the buyer's constraints.
     """
     print("\n--- INVERSE DESIGN MODULE ---")
-    n = 20000 
+    
+    # 1. LOAD CONSTRAINTS
+    constraints_path = 'data/raw/constraints.json'
+    if os.path.exists(constraints_path):
+        with open(constraints_path, 'r') as f:
+            config = json.load(f)
+    else:
+        # Fallback to defaults seen in constraints.json
+        config = {
+            "constraints": {"p80_min": 96.0, "p80_max": 101.0, "r95_max": 175.0},
+            "input_bounds": {
+                "energy": [0.5, 5.0], "angle_rad": [0.26, 1.57], "coupling": [0.2, 1.7],
+                "strength": [0.4, 4.2], "porosity": [0.0, 0.33], "gravity": [1.02, 10.47],
+                "atmosphere": [0.0, 1.0], "shape_factor": [0.7, 1.5]
+            }
+        }
+
+    c = config['constraints']
+    bounds = config['input_bounds']
+    
+    # 2. GENERATE RANDOM SAMPLES WITHIN BOUNDS
+    n = 50000 
+    df_sim = pd.DataFrame()
+    
+    for feat, b in bounds.items():
+        # Handle both list and dict formats for bounds
+        if isinstance(b, dict):
+            df_sim[feat] = np.random.uniform(b['min'], b['max'], n)
+        else:
+            df_sim[feat] = np.random.uniform(b[0], b[1], n)
+            
+    # Ensure columns match training data order
     feature_names = X_train.columns.tolist()
-    
-    # 1. GENERATE RANDOM INPUTS FOR CORE PARAMETERS
-    data = {
-        'Absolute Magnitude': np.random.uniform(15, 25, n),
-        'Est Dia in KM(min)': np.random.uniform(0.1, 1.5, n),
-        'Relative Velocity km per sec': np.random.uniform(10, 45, n),
-        'Miss Dist.(kilometers)': np.random.uniform(500000, 50000000, n),
-        'Orbit Uncertainity': np.random.randint(0, 10, n),
-        'Minimum Orbit Intersection': np.random.uniform(0, 0.4, n)
-    }
-    
-    # Create simulator dataframe
-    df_sim = pd.DataFrame(data)
-
-    # 2. FILL OTHER FEATURES WITH MEANS FROM TRAINING DATA
-    for col in feature_names:
-        if col not in df_sim.columns:
-            df_sim[col] = X_train[col].mean()
-
-    # Reorder columns to match model training exactly
     df_sim = df_sim[feature_names]
 
-    # 3. PREDICT OUTPUTS
-    df_sim['Hazard_Risk'] = model.predict(df_sim)
+    # 3. PREDICT OUTPUTS USING TRAINED MODEL
+    print(f"Simulating {n} scenarios and predicting outcomes...")
+    preds = model.predict(df_sim)
+    
+    # Map predictions back to columns
+    # Predictions structure: [P80, fines_frac, oversize_frac, R95, R50_fines, R50_oversize]
+    target_names = ['P80', 'fines_frac', 'oversize_frac', 'R95', 'R50_fines', 'R50_oversize']
+    for i, name in enumerate(target_names):
+        df_sim[name] = preds[:, i]
 
-    # 4. CALCULATE P80 AND R95 (Simulated Physics)
-    df_sim['P80'] = df_sim['Relative Velocity km per sec'] * 1.5 + df_sim['Absolute Magnitude'] * 2
-    df_sim['R95'] = df_sim['Est Dia in KM(min)'] * 100 + df_sim['Relative Velocity km per sec'] * 2
-
-    # 5. FILTER BASED ON CHALLENGE CONDITIONS
-    condition = (df_sim['P80'] >= 96) & (df_sim['P80'] <= 101) & (df_sim['R95'] <= 175)
+    # 4. FILTER BASED ON CHALLENGE CONDITIONS
+    condition = (df_sim['P80'] >= c['p80_min']) & \
+                (df_sim['P80'] <= c['p80_max']) & \
+                (df_sim['R95'] <= c['r95_max'])
+    
     valid_scenarios = df_sim[condition]
 
-    # 6. SAVE TOP 20
+    # 5. SAVE SUBMISSION
+    if len(valid_scenarios) == 0:
+        print("Warning: No scenarios met the constraints. Lowering selectivity for demonstration.")
+        # Just take the ones closest to the range
+        valid_scenarios = df_sim.copy()
+        valid_scenarios['score'] = np.abs(valid_scenarios['P80'] - (c['p80_min'] + c['p80_max'])/2)
+        valid_scenarios = valid_scenarios.sort_values('score')
+    
     final_output = valid_scenarios.head(target_count)
+    
+    # Save the full results and also a submission-style CSV
     final_output.to_csv('results/valid_scenarios.csv', index=False)
     
+    # Submission template usually only needs inputs
+    submission = final_output[feature_names]
+    submission.to_csv('results/design_submission.csv', index=False)
+    
     print(f"Found {len(valid_scenarios)} matching scenarios.")
-    print(f"Saved top 20 to results/valid_scenarios.csv")
+    print(f"Saved submission to results/design_submission.csv")

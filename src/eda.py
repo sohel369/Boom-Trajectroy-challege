@@ -3,28 +3,35 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import os
 
-def run_eda(file_path='data/raw/asteroid_data.csv'):
+def run_eda(train_path='data/raw/train.csv', labels_path='data/raw/train_labels.csv'):
     """
-    Analyzes the dataset and saves basic plots to clarify patterns.
+    Analyzes the dataset and saves plots that help understand feature relationships.
     """
-    df = pd.read_csv(file_path)
+    X = pd.read_csv(train_path)
+    y = pd.read_csv(labels_path)
+    
+    # Merge for correlation analysis
+    df = pd.concat([X, y], axis=1)
     
     # 1. SUMMARY STATS
     print("\n--- DATA SUMMARY ---")
     print(df.describe())
 
-    # 2. TARGET DISTRIBUTION
-    plt.figure(figsize=(8, 5))
-    sns.countplot(x='Hazardous', data=df, palette='Set2')
-    plt.title('Hazardous vs Safe Asteroids')
-    plt.savefig('results/target_distribution.png')
+    # 2. FEATURE DISTRIBUTIONS (Top 4 inputs)
+    fig, axes = plt.subplots(2, 2, figsize=(12, 10))
+    top_features = ['energy', 'porosity', 'strength', 'gravity']
+    for i, col in enumerate(top_features):
+        ax = axes[i//2, i%2]
+        sns.histplot(df[col], kde=True, ax=ax)
+        ax.set_title(f'Distribution of {col}')
+    plt.tight_layout()
+    plt.savefig('results/feature_distributions.png')
     plt.close()
 
-    # 3. CORRELATION HEATMAP (Sample of key features)
-    keys = ['Absolute Magnitude', 'Est Dia in KM(min)', 'Relative Velocity km per sec', 'Miss Dist.(kilometers)']
-    plt.figure(figsize=(10, 8))
-    sns.heatmap(df[keys].corr(), annot=True, cmap='coolwarm')
-    plt.title('Feature Correlation Heatmap')
+    # 3. CORRELATION HEATMAP
+    plt.figure(figsize=(12, 10))
+    sns.heatmap(df.corr(), annot=True, cmap='coolwarm', fmt=".2f")
+    plt.title('Feature and Target Correlation Heatmap')
     plt.savefig('results/correlation_heatmap.png')
     plt.close()
 
